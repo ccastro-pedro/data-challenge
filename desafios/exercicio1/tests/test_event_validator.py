@@ -34,7 +34,7 @@ invalid_schema_missing_field_deeper = {i: (v if i != "address"
 
 
 class EventValidatorTest(unittest.TestCase):
-    JsonValidator.get_schema('../schema.json')
+    JsonValidator.get_schema('schema.json')
 
     def test_valid_configuration(self):
         self.assertTrue(JsonValidator.validate(valid_schema))

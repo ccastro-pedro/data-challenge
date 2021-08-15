@@ -5,10 +5,10 @@ from desafios.exercicio1.event_validator import JsonValidator
 _ATHENA_CLIENT = None
 
 
-class SchemaToTable(JsonValidator):
+class QueryBuilder(JsonValidator):
     schema = None
     cols = None
-    default = "s3://bucket/iti-query/"
+    cols_string = None
     dir_path = os.path.dirname(os.path.realpath(__file__))
 
     @classmethod
@@ -31,24 +31,34 @@ class SchemaToTable(JsonValidator):
         return f"{i} {cls._convert_types(v.get('type'))}"
 
     @classmethod
-    def get_create_table_query(cls, location=default):
+    def _create_cols_string(cls):
         cls._required_fields_and_types()
         cls._get_col_names_and_types(cls.fields)
+        cols_string = ''
+        for i, v in cls.cols.items():
+            if v.get('type') != 'object':
+                cols_string += cls._format_columns_type(i, v) + ',\n\t\t'
+            else:
+                cols_string += cls._format_columns_type(i, v) + "<"
+                for j, k in v.get("fields", {}).items():
+                    cols_string += f"\n\t\t{' ' * len(cls._format_columns_type(i, v))}" \
+                                   + cls._format_columns_type(j, k) + ","
+                else:
+                    cols_string = cols_string[:-1]
+                    cols_string += f"\n\t\t{' ' * len(cls._format_columns_type(i, v))}>,\n\t\t"
 
-        cols_string = ',\n\t\t'.join(cls._format_columns_type(i, v) if v.get('type') != 'object'
-                                     else cls._format_columns_type(i, v) +
-                                          "<" + f",\n\t\t{' ' * len(cls._format_columns_type(i, v))}"
-                                     .join(cls._format_columns_type(j, k) for j, k in v.get("fields", {}).items()) +
-                                          f"\n\t\t{' ' * len(cls._format_columns_type(i, v))}>" for i, v in
-                                     cls.cols.items())
+        cls.cols_string = cols_string[:len(cols_string) - 4]
+
+    @classmethod
+    def get_create_table_query(cls):
+        cls._create_cols_string()
 
         query = f"""
         CREATE EXTERNAL TABLE IF NOT EXISTS
         json_schema_table (
-        {cols_string}
+        {cls.cols_string}
         )
-        ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'
-        LOCATION {location}         
+        ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'      
         """
 
         return query
@@ -79,8 +89,8 @@ def handler():
     Utilize a função create_hive_table_with_athena para te auxiliar
         na criação da tabela HIVE, não é necessário alterá-la
     """
-    SchemaToTable.get_schema('./schema.json')
+    QueryBuilder.get_schema('./schema.json')
 
-    query = SchemaToTable.get_create_table_query()
+    query = QueryBuilder.get_create_table_query()
 
     create_hive_table_with_athena(query)

@@ -11,23 +11,31 @@ _SQS_CLIENT = None
 class JsonValidator:
     schema = None
     fields = None
+    properties = None
     dir_path = os.path.dirname(os.path.realpath(__file__))
 
     @classmethod
     def get_schema(cls, schema):
         cls.schema = get_schema(os.path.join(cls.dir_path, schema))
+        cls.properties = cls.schema.get('properties', {})
 
     @classmethod
     def _required_fields_and_types(cls):
-        cls.fields = {i: ({'type': v.get('type')} if v.get('type') != 'object'
-                          else {'type': v.get('type'), 'fields': {j: {'type': k.get('type')} for j, k in cls.schema
-                          .get('properties').get(i).get('properties').items()}})
-                      for i, v in cls.schema.get('properties').items()}
+        cls.fields = {}
+        for i, v in cls.properties.items():
+            if v.get('type') != 'object':
+                cls.fields[i] = {'type': v.get('type')}
+            else:
+                cls.fields[i] = {}
+                cls.fields[i]['type'] = v.get('type')
+                cls.fields[i]['fields'] = {}
+                for j, k in cls.properties.get(i).get('properties').items():
+                    cls.fields[i]['fields'][j] = {'type': k.get('type')}
 
     @classmethod
     def _convert_types(cls, typ):
         return {
-            'integer': [int],
+            'integer': [int, float],
             'string': [str],
             'object': [dict],
             'array': [list],
@@ -40,7 +48,7 @@ class JsonValidator:
         """
         Faz a validação completa do evento
 
-        :param event: Evento  (dict)
+        :param: event: Evento  (dict)
         :return: Bool
         """
         cls._required_fields_and_types()

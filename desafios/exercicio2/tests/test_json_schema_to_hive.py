@@ -1,6 +1,6 @@
 import unittest
 
-from desafios.exercicio2.json_schema_to_hive import SchemaToTable
+from desafios.exercicio2.json_schema_to_hive import QueryBuilder
 
 
 class SchemaToHiveTest(unittest.TestCase):
@@ -11,15 +11,15 @@ class SchemaToHiveTest(unittest.TestCase):
 		documentNumber STRING,
 		name STRING,
 		age INT,
-		address STRUCT<street STRING,
+		address STRUCT<
+		              street STRING,
 		              number INT,
 		              mailAddress BOOLEAN
 		              >
         )
-        ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'
-        LOCATION s3://bucket_location         
+        ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'      
         """
 
     def test_correct_query(self):
-        SchemaToTable.get_schema("schema.json")
-        self.assertEqual(self.query, SchemaToTable.get_create_table_query("s3://bucket_location"))
+        QueryBuilder.get_schema("schema.json")
+        self.assertEqual(self.query, QueryBuilder.get_create_table_query())

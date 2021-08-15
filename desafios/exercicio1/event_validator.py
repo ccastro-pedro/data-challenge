@@ -15,40 +15,12 @@ class JsonValidator:
     def get_schema(cls, schema):
         cls.schema = get_schema(schema)
 
-
     @classmethod
-    def _get_all_fields(cls):
-        keys = cls.schema.get('properties').keys()
-        print(keys)
-
-    @classmethod
-    def _required_fields_and_types(cls, schema=None, fields=None, parent=None):
-        # if fields is None:
-        #     fields = {}
-        # if schema is None:
-        #     schema = cls.schema.get('properties')
-        #
-        # for i, v in schema.items():
-        #     if v.get('type') != 'object':
-        #         if parent:
-        #             fields[parent]['fields'][i] = {'type': v.get('type')}
-        #         else:
-        #             fields[i] = {'type': v.get('type')}
-        #     else:
-        #         fields[i] = {'type': v.get('type'), 'fields': {}}
-        #         parent = i
-        #         return cls._required_fields_and_types(schema.get(i).get('properties'), fields, parent)
-        # parent = None
-        #         # for j, k in :
-        #         #     fields[i] = {'type': v.get('type'), 'fields': {j: {'type': k.get('type')}}}
-
+    def _required_fields_and_types(cls):
         cls.fields = {i: ({'type': v.get('type')} if v.get('type') != 'object'
                           else {'type': v.get('type'), 'fields': {j: {'type': k.get('type')} for j, k in cls.schema
                           .get('properties').get(i).get('properties').items()}})
                       for i, v in cls.schema.get('properties').items()}
-        # print(fields)
-        # cls.fields = fields
-        # return cls.fields
 
     @classmethod
     def _convert_types(cls, typ):
@@ -119,7 +91,6 @@ def handler(event):
     """
     queue_name = 'valid-events-queue'
     JsonValidator.get_schema('./schema.json')
-    JsonValidator._get_all_fields()
     if JsonValidator.validate(event):
         send_event_to_queue(event, queue_name)
     else:

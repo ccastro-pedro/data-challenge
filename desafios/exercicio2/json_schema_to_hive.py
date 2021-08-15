@@ -13,31 +13,7 @@ class SchemaToTable(JsonValidator):
 
     @classmethod
     def _get_col_names_and_types(cls, fields):
-        # cols = {}
-        # for i, v in fields.items():
-        #     if isinstance(v, dict):
-        #         for j, k in v.items():
-        #             if j == 'type' and k != 'object':
-        #                 cols[i] = {'type': k, 'description': ''}
-        #             elif j == 'fields':
-        #                 for x, y in k.items():
-        #                     cols[f'{i}_{x}'] = y.get('type')
-        cols = {}
-        for i, v in fields.items():
-            if isinstance(v, dict):
-                for j, k in v.items():
-                    if j == 'type':
-                        cols[i] = k
-                    elif j == 'fields':
-                        for x, y in k.items():
-                            cols[f'{i}_{x}'] = y.get('type')
-        # print(fields)
         cls.cols = fields
-
-    @classmethod
-    def _get_description(cls):
-        for k in cls.cols.keys():
-            print(k, cls.schema.get('properties').get(k).get('description'))
 
     @classmethod
     def _convert_types(cls, typ):
@@ -55,31 +31,9 @@ class SchemaToTable(JsonValidator):
         return f"{i} {cls._convert_types(v.get('type'))}"
 
     @classmethod
-    def _create_cols_string(cls, fields, cols_string=''):
-        # print([y for x, y in enumerate(cols_string.split()) if not x%2])
-        while len(fields) > 0:
-            for i, v in list(fields.items()):
-                print(len(fields))
-                if v.get('type') != 'object':
-                    cols_string += cls._format_columns_type(i, v) + ',\n\t\t'
-                    fields.pop(i, None)
-                else:
-                    cols_string += cls._format_columns_type(i, v)
-                    aux_fields = v.get("fields", {})
-                    fields.pop(i, None)
-                    return cls._create_cols_string(aux_fields, cols_string + "<")
-            else:
-                cols_string = cols_string[:len(cols_string) - 2]
-            cols_string += ">"
-        return cols_string
-
-    @classmethod
     def get_create_table_query(cls, location=default):
         cls._required_fields_and_types()
         cls._get_col_names_and_types(cls.fields)
-        # cls._get_description()
-
-        # cols_string = cls._create_cols_string(cls.cols)
 
         cols_string = ',\n\t\t'.join(cls._format_columns_type(i, v) if v.get('type') != 'object'
                                      else cls._format_columns_type(i, v) +

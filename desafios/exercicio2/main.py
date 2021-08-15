@@ -1,7 +1,8 @@
 import boto3
 from moto import mock_athena, mock_s3
 
-import exercicio_2.json_schema_to_hive as js_2_hive
+import exercicio2.json_schema_to_hive as js_2_hive
+
 
 @mock_athena
 @mock_s3
@@ -13,6 +14,7 @@ def main():
 
     js_2_hive._ATHENA_CLIENT = _ATHENA_CLIENT
     js_2_hive.handler()
-    
+
+
 if __name__ == "__main__":
     main()

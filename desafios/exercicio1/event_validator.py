@@ -1,5 +1,6 @@
 import json
 import boto3
+import os
 
 from utils import get_schema
 from utils import get_dict_keys
@@ -10,10 +11,11 @@ _SQS_CLIENT = None
 class JsonValidator:
     schema = None
     fields = None
+    dir_path = os.path.dirname(os.path.realpath(__file__))
 
     @classmethod
     def get_schema(cls, schema):
-        cls.schema = get_schema(schema)
+        cls.schema = get_schema(os.path.join(cls.dir_path, schema))
 
     @classmethod
     def _required_fields_and_types(cls):
@@ -90,7 +92,7 @@ def handler(event):
         não é necessário alterá-la
     """
     queue_name = 'valid-events-queue'
-    JsonValidator.get_schema('./schema.json')
+    JsonValidator.get_schema('schema.json')
     if JsonValidator.validate(event):
         send_event_to_queue(event, queue_name)
     else:

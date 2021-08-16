@@ -4,7 +4,7 @@ Para o desenho da arquitetura, resolvi utilizar o Kinesis Firehose para a ingest
 Firehose serão salvos em um bucket de dados raw no s3. 
 
 Um scheduler do Cloudwatch irá acionar uma Lambda Function que, por sua vez, acionará um job do Glue ETL. 
-Esse job (PySpark) fara a validação do Schema dos dados raw além de fazer a transferência para um outro bucket,
+Esse job (PySpark) fará a validação do Schema dos dados raw além de fazer a transferência para um outro bucket,
 staging zone. O job do Glue irá acessar o DynamoDB para obtenção dos Schemas. Além disso, proponho uma forma
 simplificada para alterração dos Schemas, utilizando uma api em conjunto com o API Gateway da AWS e uma outra
 função Lambda. 

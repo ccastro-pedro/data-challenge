@@ -1,6 +1,6 @@
 import unittest
 
-from desafios.exercicio1.event_validator import JsonValidator
+from exercicio1.event_validator import JsonValidator
 
 valid_schema = {
     "eid": "3e628a05-7a4a-4bf3-8770-084c11601a12",

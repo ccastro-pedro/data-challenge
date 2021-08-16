@@ -2,8 +2,8 @@ import json
 import boto3
 import os
 
-from desafios.utils import get_schema
-from desafios.utils import get_dict_keys
+from utils import get_schema
+from utils import get_dict_keys
 
 _SQS_CLIENT = None
 

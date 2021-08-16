@@ -1,6 +1,6 @@
 import os
 
-from desafios.exercicio1.event_validator import JsonValidator
+from exercicio1.event_validator import JsonValidator
 
 _ATHENA_CLIENT = None
 

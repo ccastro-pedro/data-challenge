@@ -1,6 +1,6 @@
 import unittest
 
-from desafios.exercicio2.json_schema_to_hive import QueryBuilder
+from exercicio2.json_schema_to_hive import QueryBuilder
 
 
 class SchemaToHiveTest(unittest.TestCase):
